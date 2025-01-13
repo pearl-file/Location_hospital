@@ -2,7 +2,6 @@ package com.pearl_file.Site.Controller;
 
 import java.util.List;
 
-import org.locationtech.jts.algorithm.Distance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,12 +23,12 @@ public class LocationController {
 	public ResponseEntity<List<DistancePlaceResponse>> getNearHospitals(
 			@RequestParam("latitude")double latitude,
 			@RequestParam("longitude")double longitude
-//			,
-//			@RequestParam("radius")double radius
+			,
+			@RequestParam("radius")double radius
 			){
 		List<DistancePlaceResponse> nearHospitals = 
 				hospitalService.findNearHospitals(latitude,longitude
-//						,radius
+						,radius
 						);
 		return ResponseEntity.ok(nearHospitals);
 	}

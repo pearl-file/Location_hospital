@@ -17,21 +17,6 @@ public class HospitalService {
 	@Autowired
 	private HospitalRepository hospitalRepository;
 	
-	public List<DistancePlaceResponse> findNearHospitals(double latitude,double longitude
-//			,double radius
-			){
-		List<HospitalEntity> hospitals = hospitalRepository.findNearHospitals(latitude,longitude
-//				,radius
-				);
-		return hospitals.stream().map(hospital -> {
-            double distance = calculateDistance(latitude, longitude, hospital.getLaValue(), hospital.getLoValue()); // Haversine 공식 등으로 거리 계산
-            return DistancePlaceResponse.builder()
-                    .hospitalEntity(hospital)
-                    .distance(distance)
-                    .locationRequest(new LocationRequest(latitude, longitude, hospital.getLaValue(), hospital.getLoValue())) // 임시
-                    .build();
-        }).sorted((h1, h2) -> Double.compare(h1.getDistance(), h2.getDistance())) // 거리순 정렬
-          .collect(Collectors.toList());}
 	// harversine 공식 구현 - 지구 모양을 고려해서 두 지점간의 거리를 계산 
 		private double calculateDistance (double lat1, double lon1, double lat2, double lon2) {
 			final int R = 6371; 
@@ -46,6 +31,25 @@ public class HospitalService {
 			return distance;
 		
 	}
+	
+	public List<DistancePlaceResponse> findNearHospitals(double latitude,double longitude
+			,double radius
+			){
+		List<HospitalEntity> hospitals = hospitalRepository.findNearHospitals(latitude,longitude
+				,radius
+				);
+		return hospitals.stream().map(hospital -> {
+            double distance = calculateDistance(latitude, longitude, hospital.getLaValue(), hospital.getLoValue()); // Haversine 공식 등으로 거리 계산
+            return DistancePlaceResponse.builder()
+                    .hospitalEntity(hospital)
+                    .distance(distance)
+                    .locationRequest(new LocationRequest(latitude, longitude, hospital.getLaValue(), hospital.getLoValue())) // 병원 위도경도, 사용자위도경도 
+                    .build();
+        })
+				.filter(response ->response.getDistance() < radius)
+				.sorted((h1, h2) -> Double.compare(h1.getDistance(), h2.getDistance())) // 거리순 정렬
+          .collect(Collectors.toList());}
+	
 		
 		public List<HospitalEntity> getList() {
 			return hospitalRepository.findAll();
